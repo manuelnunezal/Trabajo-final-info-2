@@ -58,13 +58,13 @@ class VentanaInicio(QMainWindow):
             
         elif self.__coordinador.Validar(usuario, contrasena) == False:
             msj= QMessageBox(self)
-            msj.setIcon(QMessageBox.Warning) #Information
+            msj.setIcon(QMessageBox.Warning) 
             msj.setText("Contraseña Incorrecta")
             msj.show()
 
         else:
             msj= QMessageBox(self)
-            msj.setIcon(QMessageBox.Warning) #Information
+            msj.setIcon(QMessageBox.Warning) 
             msj.setText("Usuario no existe")
             msj.show()
 
