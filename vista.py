@@ -138,17 +138,6 @@ class VentanaImagenes(QDialog):
             self.aumentar.setEnabled(True)
             self.disminuir.setEnabled(True)
        
-    def load_current_dicom(self):
-        if 0 <= self.current_index < len(self.dicom_files):
-            file_name = self.dicom_files[self.current_index]
-            file_path = os.path.join(self.folder_path, file_name)
-            self.__coordinador.img_conextion(file_path)
-            pixmap = QPixmap('temp_image.png')
-            self.imagenes.setPixmap(pixmap)
-            os.remove('temp_image.png')       
 
-    def CambiarImagen(self, value):
-        self.current_index = value
-        self.load_current_dicom()
 
     
