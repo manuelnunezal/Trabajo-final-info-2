@@ -3,141 +3,139 @@ from PyQt5.uic import loadUi
 from PyQt5.QtGui import  QPixmap, QIcon
 import os
 
+# Clase para la ventana de inicio de sesión
 class VentanaInicio(QMainWindow):
-    def __init__(self, ppal =None):
+    # Constructor que inicializa la ventana de inicio y carga su interfaz
+    def __init__(self, ppal=None):
         super().__init__()
-        loadUi('iniciar_sesion.ui',self)
-        self.setup()
+        loadUi('iniciar_sesion.ui', self)  # Carga la interfaz gráfica desde un archivo .ui
+        self.setup()  # Configura los elementos gráficos y eventos
 
+    # Configura los elementos de la ventana
     def setup(self):
-        self.inicioboton.clicked.connect(self.ValidarUsuario)
-        self.contrasenaEdit.setEchoMode(2)
-        self.ojo.clicked.connect(self.Vercontrasena)
-        icon_path = "iconos/ojoabierto.png"  
-        icon = QIcon(icon_path)
-        self.ojo.setIcon(icon)    
-        icon_usua = "iconos/muneco.png"
-        pixmapusua = QPixmap(icon_usua)
-        self.usuario.setPixmap(pixmapusua)
-        icon_contra = "iconos/contrasena.png"
-        pixmapcontra = QPixmap(icon_contra)
-        self.contrasena.setPixmap(pixmapcontra)
-        icon_iniciarse = "iconos/sesion.png"
-        pixmapiniciarse = QPixmap(icon_iniciarse)
-        self.iniciarsesion.setPixmap(pixmapiniciarse)
-        icon_window = QIcon("iconos/iconoventana.png")
-        self.setWindowIcon(icon_window)
-        self.setWindowTitle('Iniciar Sesión')
+        self.inicioboton.clicked.connect(self.ValidarUsuario)  # Conecta el botón de inicio al método de validación
+        self.contrasenaEdit.setEchoMode(2)  # Configura el campo de contraseña para que oculte los caracteres
 
+        # Conecta el botón del "ojo" para mostrar/ocultar contraseña
+        self.ojo.clicked.connect(self.Vercontrasena)
+        icon_path = "iconos/ojoabierto.png"
+        self.ojo.setIcon(QIcon(icon_path))  # Establece el ícono inicial como "ojo abierto"
+
+        # Configuración de íconos para mejorar la interfaz visual
+        self.usuario.setPixmap(QPixmap("iconos/muneco.png"))
+        self.contrasena.setPixmap(QPixmap("iconos/contrasena.png"))
+        self.iniciarsesion.setPixmap(QPixmap("iconos/sesion.png"))
+
+        # Configuración de ventana
+        self.setWindowIcon(QIcon("iconos/iconoventana.png"))  # Ícono de la ventana
+        self.setWindowTitle('Iniciar Sesión')  # Título de la ventana
+
+    # Permite agregar un controlador externo para manejar la lógica de negocio
     def addControler(self, c):
         self.__coordinador = c
 
+    # Alterna entre mostrar y ocultar la contraseña
     def Vercontrasena(self):
-        if self.contrasenaEdit.echoMode() == 0:
-            self.contrasenaEdit.setEchoMode(2)
-            icon_path = "iconos/ojoabierto.png"  
-            icon = QIcon(icon_path)
-            self.ojo.setIcon(icon)
-        elif self.contrasenaEdit.echoMode() == 2:
-            self.contrasenaEdit.setEchoMode(0)
-            icon_path = "iconos/ojocerrado.png"  
-            icon = QIcon(icon_path)
-            self.ojo.setIcon(icon)
-        
+        if self.contrasenaEdit.echoMode() == 0:  # Si está visible
+            self.contrasenaEdit.setEchoMode(2)  # Cambiar a ocultar
+            self.ojo.setIcon(QIcon("iconos/ojoabierto.png"))
+        elif self.contrasenaEdit.echoMode() == 2:  # Si está oculta
+            self.contrasenaEdit.setEchoMode(0)  # Cambiar a visible
+            self.ojo.setIcon(QIcon("iconos/ojocerrado.png"))
 
+    # Valida las credenciales del usuario
     def ValidarUsuario(self):
-        usuario = self.usuarioEdit.text()
-        contrasena = self.contrasenaEdit.text()
-        
-        if self.__coordinador.Validar(usuario, contrasena) == True:
-            ventana_imagenes=VentanaImagenes(self)
-            ventana_imagenes.addControler(self.__coordinador)
-            self.hide()
-            ventana_imagenes.show()
-            
-            
-        elif self.__coordinador.Validar(usuario, contrasena) == False:
-            msj= QMessageBox(self)
-            msj.setIcon(QMessageBox.Warning) 
-            msj.setText("Contraseña Incorrecta")
-            msj.show()
+        usuario = self.usuarioEdit.text()  # Obtiene el texto ingresado en el campo de usuario
+        contrasena = self.contrasenaEdit.text()  # Obtiene el texto ingresado en el campo de contraseña
 
+        # Llama al coordinador para verificar las credenciales
+        if self.__coordinador.Validar(usuario, contrasena):
+            ventana_imagenes = VentanaImagenes(self)  # Crea una nueva ventana para imágenes
+            ventana_imagenes.addControler(self.__coordinador)  # Asocia el coordinador
+            self.hide()  # Oculta la ventana actual
+            ventana_imagenes.show()  # Muestra la ventana de imágenes
         else:
-            msj= QMessageBox(self)
-            msj.setIcon(QMessageBox.Warning) 
-            msj.setText("Usuario no existe")
+            msj = QMessageBox(self)
+            msj.setIcon(QMessageBox.Warning)  # Configura el ícono de advertencia
+            if self.__coordinador.Validar(usuario, contrasena) is False:
+                msj.setText("Contraseña Incorrecta")  # Mensaje de error de contraseña
+            else:
+                msj.setText("Usuario no existe")  # Mensaje de error de usuario
             msj.show()
 
-
+# Clase para la ventana de imágenes diagnósticas
 class VentanaImagenes(QDialog):
+    # Constructor que inicializa la ventana de imágenes
     def __init__(self, ppal):
         super(VentanaImagenes, self).__init__(ppal)
-        loadUi('imagenes.ui',self)
-        self.__parent=ppal
-        self.setup()
-           
+        loadUi('imagenes.ui', self)  # Carga la interfaz gráfica desde un archivo .ui
+        self.__parent = ppal  # Guarda referencia a la ventana de inicio
+        self.setup()  # Configura los elementos gráficos y eventos
+
+    # Configura los elementos de la ventana de imágenes
     def setup(self):
+        # Conecta los eventos de los botones y slider
         self.cargarCarpeta.clicked.connect(self.CargarCarpeta)
         self.horizontalSlider.valueChanged.connect(self.CambiarImagen)
         self.salir.clicked.connect(self.RetornarInicio)
-        icon_path1 = "iconos/iconoventana.png"
-        pixmap1 = QPixmap(icon_path1)
-        self.iconosesion.setPixmap(pixmap1)
-        icon_window = QIcon("iconos/iconoventana.png")
-        self.setWindowIcon(icon_window)
-        self.setWindowTitle('Imágenes Diagnósticas')
         self.aumentar.clicked.connect(self.incrementSlider)
         self.disminuir.clicked.connect(self.decrementSlider)
-        icon_aumentar = QIcon("iconos/aumentar.png")
-        self.aumentar.setIcon(icon_aumentar)
-        icon_disminuir = QIcon("iconos/disminuir.png")
-        self.disminuir.setIcon(icon_disminuir)
+
+        # Configuración de íconos y título de ventana
+        self.iconosesion.setPixmap(QPixmap("iconos/iconoventana.png"))
+        self.setWindowIcon(QIcon("iconos/iconoventana.png"))
+        self.setWindowTitle('Imágenes Diagnósticas')
+        self.aumentar.setIcon(QIcon("iconos/aumentar.png"))
+        self.disminuir.setIcon(QIcon("iconos/disminuir.png"))
+
+        # Desactivar botones de navegación inicialmente
         self.aumentar.setEnabled(False)
         self.disminuir.setEnabled(False)
-    
+
+    # Incrementa el valor del slider para mostrar la siguiente imagen
     def incrementSlider(self):
         current_value = self.horizontalSlider.value()
         self.horizontalSlider.setValue(current_value + 1)
 
+    # Disminuye el valor del slider para mostrar la imagen anterior
     def decrementSlider(self):
         current_value = self.horizontalSlider.value()
         self.horizontalSlider.setValue(current_value - 1)
-        
-            
-    def addControler(self,c):
-        self.__coordinador=c
-        
+
+    # Permite agregar un controlador externo para manejar la lógica de negocio
+    def addControler(self, c):
+        self.__coordinador = c
+
+    # Regresa a la ventana de inicio de sesión
     def RetornarInicio(self):
-        self.hide()
-        self.__parent.show()
-        self.__parent.usuarioEdit.clear()
-        self.__parent.contrasenaEdit.clear()
-        
+        self.hide()  # Oculta la ventana de imágenes
+        self.__parent.show()  # Muestra la ventana de inicio
+        self.__parent.usuarioEdit.clear()  # Limpia el campo de usuario
+        self.__parent.contrasenaEdit.clear()  # Limpia el campo de contraseña
+
+    # Carga una carpeta de imágenes DICOM
     def CargarCarpeta(self):
-        folder_dialog = QFileDialog(self)
-        folder_dialog.setFileMode(QFileDialog.Directory)
+        folder_dialog = QFileDialog(self)  # Crea un cuadro de diálogo para seleccionar la carpeta
+        folder_dialog.setFileMode(QFileDialog.Directory)  # Solo permite seleccionar carpetas
         folder_dialog.setOption(QFileDialog.ShowDirsOnly, True)
 
         if folder_dialog.exec_():
-            self.folder_path = folder_dialog.selectedFiles()[0]
-            self.dicom_files = [f for f in os.listdir(self.folder_path) if f.endswith(".dcm")]
-            self.current_index = 0
-            self.load_current_dicom()    
-        file_name = self.dicom_files[self.current_index]
-        file_path = os.path.join(self.folder_path, file_name)
-        self.__coordinador.img_conextion(file_path)
-        pixmap = QPixmap('temp_image.png')
-        self.imagenes.setPixmap(pixmap)
-        os.remove('temp_image.png')
-        info = self.__coordinador.read_dicom_metadata(file_path)
-        self.text_edit = QTextEdit(self)
-        self.text_edit.setPlainText(info)
-        self.info.setWidget(self.text_edit)
+            self.folder_path = folder_dialog.selectedFiles()[0]  # Obtiene la ruta seleccionada
+            self.dicom_files = [f for f in os.listdir(self.folder_path) if f.endswith(".dcm")]  # Filtra archivos DICOM
+            self.current_index = 0  # Inicializa el índice en 0
+            self.load_current_dicom()  # Carga la primera imagen
 
-        if file_path != '':
-            self.aumentar.setEnabled(True)
-            self.disminuir.setEnabled(True)
-       
+    # Carga la imagen DICOM actual según el índice
+    def load_current_dicom(self):
+        if 0 <= self.current_index < len(self.dicom_files):
+            file_name = self.dicom_files[self.current_index]  # Obtiene el archivo actual
+            file_path = os.path.join(self.folder_path, file_name)  # Construye la ruta completa
+            self.__coordinador.img_conextion(file_path)  # Procesa la imagen con el coordinador
+            pixmap = QPixmap('temp_image.png')  # Carga la imagen temporal
+            self.imagenes.setPixmap(pixmap)  # Muestra la imagen en el QLabel
+            os.remove('temp_image.png')  # Elimina el archivo temporal
 
-
-    
+    # Cambia la imagen mostrada según el valor del slider
+    def CambiarImagen(self, value):
+        self.current_index = value
+        self.load_current_dicom()
